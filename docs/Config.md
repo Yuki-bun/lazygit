@@ -385,6 +385,9 @@ git:
   # length. Set to 40 to disable truncation.
   truncateCopiedCommitHashesTo: 12
 
+  # Use three-dot syntax for range diffs
+  diffUseTripleDot: false
+
 # Periodic update checks
 update:
   # One of: 'prompt' (default) | 'background' | 'never'
