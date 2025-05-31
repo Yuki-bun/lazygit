@@ -615,6 +615,9 @@ type OSConfig struct {
 	// Deprecated: use EditAtLine instead.
 	EditCommandTemplate string `yaml:"editCommandTemplate,omitempty" jsonschema:"deprecated"`
 
+	// AllowEditDirectory allows editing of directories in the file view.
+	AllowEditDirectory bool `yaml:"allowEditDirectory,omitempty"`
+
 	// OpenCommand is the command for opening a file
 	// Deprecated: use Open instead.
 	OpenCommand string `yaml:"openCommand,omitempty" jsonschema:"deprecated"`

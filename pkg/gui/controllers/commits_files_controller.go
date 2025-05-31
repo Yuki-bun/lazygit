@@ -351,11 +351,14 @@ func (self *CommitFilesController) open(node *filetree.CommitFileNode) error {
 func (self *CommitFilesController) edit(nodes []*filetree.CommitFileNode) error {
 	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
 		func(node *filetree.CommitFileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
+			return node.GetPath(), self.c.UserConfig().OS.AllowEditDirectory || node.IsFile()
 		}))
 }
 
 func (self *CommitFilesController) canEditFiles(nodes []*filetree.CommitFileNode) *types.DisabledReason {
+	if self.c.UserConfig().OS.AllowEditDirectory {
+		return nil
+	}
 	if lo.NoneBy(nodes, func(node *filetree.CommitFileNode) bool { return node.IsFile() }) {
 		return &types.DisabledReason{
 			Text:             self.c.Tr.ErrCannotEditDirectory,

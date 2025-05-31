@@ -1599,6 +1599,11 @@
           "type": "string",
           "description": "EditCommandTemplate is the command template for editing a file\nDeprecated: use EditAtLine instead."
         },
+        "allowEditDirectory": {
+          "type": "boolean",
+          "description": "AllowEditDirectory allows editing of directories in the file view.",
+          "default": false
+        },
         "openCommand": {
           "type": "string",
           "description": "OpenCommand is the command for opening a file\nDeprecated: use Open instead."

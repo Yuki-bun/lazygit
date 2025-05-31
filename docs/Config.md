@@ -454,6 +454,9 @@ os:
   # See https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#using-aliases-or-functions-in-shell-commands
   shellFunctionsFile: ""
 
+  # AllowEditDirectory allows editing of directories in the file view.
+  allowEditDirectory: false
+
 # If true, don't display introductory popups upon opening Lazygit.
 disableStartupPopups: false
 

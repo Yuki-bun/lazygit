@@ -909,11 +909,14 @@ func (self *FilesController) setStatusFiltering(filter filetree.FileTreeDisplayF
 func (self *FilesController) edit(nodes []*filetree.FileNode) error {
 	return self.c.Helpers().Files.EditFiles(lo.FilterMap(nodes,
 		func(node *filetree.FileNode, _ int) (string, bool) {
-			return node.GetPath(), node.IsFile()
+			return node.GetPath(), self.c.UserConfig().OS.AllowEditDirectory || node.IsFile()
 		}))
 }
 
 func (self *FilesController) canEditFiles(nodes []*filetree.FileNode) *types.DisabledReason {
+	if self.c.UserConfig().OS.AllowEditDirectory {
+		return nil
+	}
 	if lo.NoneBy(nodes, func(node *filetree.FileNode) bool { return node.IsFile() }) {
 		return &types.DisabledReason{
 			Text:             self.c.Tr.ErrCannotEditDirectory,
