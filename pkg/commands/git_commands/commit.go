@@ -217,20 +217,6 @@ func (self *CommitCommands) GetCommitMessagesFirstLine(hashes []string) (string,
 	return self.cmd.New(cmdArgs).DontLog().RunWithOutput()
 }
 
-// Example output:
-//
-//	cd50c79ae Preserve the commit message correctly even if the description has blank lines
-//	3ebba5f32 Add test demonstrating a bug with preserving the commit message
-//	9a423c388 Remove unused function
-func (self *CommitCommands) GetHashesAndCommitMessagesFirstLine(hashes []string) (string, error) {
-	cmdArgs := NewGitCmd("show").
-		Arg("--no-patch", "--pretty=format:%h %s").
-		Arg(hashes...).
-		ToArgv()
-
-	return self.cmd.New(cmdArgs).DontLog().RunWithOutput()
-}
-
 func (self *CommitCommands) GetCommitsOneline(hashes []string) (string, error) {
 	cmdArgs := NewGitCmd("show").
 		Arg("--no-patch", "--oneline").
@@ -256,14 +242,14 @@ func (self *CommitCommands) AmendHeadCmdObj() *oscommands.CmdObj {
 func (self *CommitCommands) ShowCmdObj(hash string, filterPaths []string) *oscommands.CmdObj {
 	contextSize := self.UserConfig().Git.DiffContextSize
 
-	extDiffCmd := self.UserConfig().Git.Paging.ExternalDiffCommand
-	useExtDiffGitConfig := self.UserConfig().Git.Paging.UseExternalDiffGitConfig
+	extDiffCmd := self.pagerConfig.GetExternalDiffCommand()
+	useExtDiffGitConfig := self.pagerConfig.GetUseExternalDiffGitConfig()
 	cmdArgs := NewGitCmd("show").
 		Config("diff.noprefix=false").
 		ConfigIf(extDiffCmd != "", "diff.external="+extDiffCmd).
 		ArgIfElse(extDiffCmd != "" || useExtDiffGitConfig, "--ext-diff", "--no-ext-diff").
 		Arg("--submodule").
-		Arg("--color="+self.UserConfig().Git.Paging.ColorArg).
+		Arg("--color="+self.pagerConfig.GetColorArg()).
 		Arg(fmt.Sprintf("--unified=%d", contextSize)).
 		Arg("--stat").
 		Arg("--decorate").

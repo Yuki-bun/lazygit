@@ -26,7 +26,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 
 	helperCommon := gui.c
 	recordDirectoryHelper := helpers.NewRecordDirectoryHelper(helperCommon)
-	reposHelper := helpers.NewRecentReposHelper(helperCommon, recordDirectoryHelper, gui.onNewRepo)
+	reposHelper := helpers.NewRecentReposHelper(helperCommon, recordDirectoryHelper, gui.onSwitchToNewRepo)
 	rebaseHelper := helpers.NewMergeAndRebaseHelper(helperCommon)
 	refsHelper := helpers.NewRefsHelper(helperCommon, rebaseHelper)
 	suggestionsHelper := helpers.NewSuggestionsHelper(helperCommon)
@@ -98,7 +98,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 		Bisect:          bisectHelper,
 		Suggestions:     suggestionsHelper,
 		Files:           helpers.NewFilesHelper(helperCommon),
-		WorkingTree:     helpers.NewWorkingTreeHelper(helperCommon, refsHelper, commitsHelper, gpgHelper),
+		WorkingTree:     helpers.NewWorkingTreeHelper(helperCommon, refsHelper, commitsHelper, gpgHelper, rebaseHelper),
 		Tags:            helpers.NewTagsHelper(helperCommon, commitsHelper, gpgHelper),
 		BranchesHelper:  helpers.NewBranchesHelper(helperCommon, worktreeHelper),
 		GPG:             helpers.NewGpgHelper(helperCommon),
@@ -193,6 +193,7 @@ func (gui *Gui) resetHelpersAndControllers() {
 	statusController := controllers.NewStatusController(common)
 	commandLogController := controllers.NewCommandLogController(common)
 	confirmationController := controllers.NewConfirmationController(common)
+	promptController := controllers.NewPromptController(common)
 	suggestionsController := controllers.NewSuggestionsController(common)
 	jumpToSideWindowController := controllers.NewJumpToSideWindowController(common, gui.handleNextTab)
 
@@ -397,6 +398,10 @@ func (gui *Gui) resetHelpersAndControllers() {
 
 	controllers.AttachControllers(gui.State.Contexts.Confirmation,
 		confirmationController,
+	)
+
+	controllers.AttachControllers(gui.State.Contexts.Prompt,
+		promptController,
 	)
 
 	controllers.AttachControllers(gui.State.Contexts.Suggestions,

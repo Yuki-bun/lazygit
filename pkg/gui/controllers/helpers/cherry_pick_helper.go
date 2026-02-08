@@ -77,7 +77,7 @@ func (self *CherryPickHelper) Paste() error {
 			}),
 		HandleConfirm: func() error {
 			return self.c.WithWaitingStatusSync(self.c.Tr.CherryPickingStatus, func() error {
-				mustStash := IsWorkingTreeDirty(self.c.Model().Files)
+				mustStash := IsWorkingTreeDirtyExceptSubmodules(self.c.Model().Files, self.c.Model().Submodules)
 
 				self.c.LogAction(self.c.Tr.Actions.CherryPick)
 
@@ -101,7 +101,7 @@ func (self *CherryPickHelper) Paste() error {
 				// below the selection.
 				if commit := self.c.Contexts().LocalCommits.GetSelected(); commit != nil && !commit.IsTODO() {
 					self.c.Contexts().LocalCommits.MoveSelection(len(cherryPickedCommits))
-					self.c.Contexts().LocalCommits.FocusLine()
+					self.c.Contexts().LocalCommits.FocusLine(true)
 				}
 
 				// If we're in the cherry-picking state at this point, it must

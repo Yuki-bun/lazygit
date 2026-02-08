@@ -1,7 +1,7 @@
 //go:generate go run generator.go
 
 // This "script" generates files called Keybindings_{{.LANG}}.md
-// in the docs/keybindings directory.
+// in the docs-master/keybindings directory.
 //
 // The content of these generated files is a keybindings cheatsheet.
 //
@@ -49,7 +49,7 @@ func CommandToRun() string {
 }
 
 func GetKeybindingsDir() string {
-	return utils.GetLazyRootDirectory() + "/docs/keybindings"
+	return utils.GetLazyRootDirectory() + "/docs-master/keybindings"
 }
 
 func generateAtDir(cheatsheetDir string) {
@@ -116,6 +116,7 @@ func localisedTitle(tr *i18n.TranslationSet, str string) string {
 		"commitDescription": tr.CommitDescriptionTitle,
 		"commits":           tr.CommitsTitle,
 		"confirmation":      tr.ConfirmationTitle,
+		"prompt":            tr.PromptTitle,
 		"information":       tr.InformationTitle,
 		"main":              tr.NormalTitle,
 		"patchBuilding":     tr.PatchBuildingTitle,
@@ -194,20 +195,21 @@ func getHeader(binding *types.Binding, tr *i18n.TranslationSet) header {
 }
 
 func formatSections(tr *i18n.TranslationSet, bindingSections []*bindingSection) string {
-	content := fmt.Sprintf("# Lazygit %s\n", tr.Keybindings)
+	var content strings.Builder
+	content.WriteString(fmt.Sprintf("# Lazygit %s\n", tr.Keybindings))
 
-	content += fmt.Sprintf("\n%s\n", italicize(tr.KeybindingsLegend))
+	content.WriteString(fmt.Sprintf("\n%s\n", italicize(tr.KeybindingsLegend)))
 
 	for _, section := range bindingSections {
-		content += formatTitle(section.title)
-		content += "| Key | Action | Info |\n"
-		content += "|-----|--------|-------------|\n"
+		content.WriteString(formatTitle(section.title))
+		content.WriteString("| Key | Action | Info |\n")
+		content.WriteString("|-----|--------|-------------|\n")
 		for _, binding := range section.bindings {
-			content += formatBinding(binding)
+			content.WriteString(formatBinding(binding))
 		}
 	}
 
-	return content
+	return content.String()
 }
 
 func formatTitle(title string) string {
@@ -223,6 +225,11 @@ func formatBinding(binding *types.Binding) string {
 
 	// Replace newlines with <br> tags for proper markdown table formatting
 	tooltip := strings.ReplaceAll(binding.Tooltip, "\n", "<br>")
+
+	// Escape pipe characters to avoid breaking the table format
+	action = strings.ReplaceAll(action, `|`, `\|`)
+	description = strings.ReplaceAll(description, `|`, `\|`)
+	tooltip = strings.ReplaceAll(tooltip, `|`, `\|`)
 
 	// Use backticks for keyboard keys. Two backticks are needed with an inner space
 	//  to escape a key that is itself a backtick.

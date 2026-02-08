@@ -3,8 +3,10 @@ package gui
 import (
 	"fmt"
 
+	"github.com/jesseduffield/lazygit/pkg/gui/keybindings"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
 	"github.com/jesseduffield/lazygit/pkg/theme"
+	"github.com/samber/lo"
 )
 
 // note: items option is mutated by this function
@@ -21,6 +23,13 @@ func (gui *Gui) createMenu(opts types.CreateMenuOptions) error {
 
 	maxColumnSize := 1
 
+	essentialKeys := []types.Key{
+		keybindings.GetKey(gui.c.UserConfig().Keybinding.Universal.ConfirmMenu),
+		keybindings.GetKey(gui.c.UserConfig().Keybinding.Universal.Return),
+		keybindings.GetKey(gui.c.UserConfig().Keybinding.Universal.PrevItem),
+		keybindings.GetKey(gui.c.UserConfig().Keybinding.Universal.NextItem),
+	}
+
 	for _, item := range opts.Items {
 		if item.LabelColumns == nil {
 			item.LabelColumns = []string{item.Label}
@@ -31,6 +40,11 @@ func (gui *Gui) createMenu(opts types.CreateMenuOptions) error {
 		}
 
 		maxColumnSize = max(maxColumnSize, len(item.LabelColumns))
+
+		// Remove all item keybindings that are the same as one of the essential bindings
+		if !opts.KeepConflictingKeybindings && lo.Contains(essentialKeys, item.Key) {
+			item.Key = nil
+		}
 	}
 
 	for _, item := range opts.Items {
@@ -44,7 +58,10 @@ func (gui *Gui) createMenu(opts types.CreateMenuOptions) error {
 	gui.State.Contexts.Menu.SetMenuItems(opts.Items, opts.ColumnAlignment)
 	gui.State.Contexts.Menu.SetPrompt(opts.Prompt)
 	gui.State.Contexts.Menu.SetAllowFilteringKeybindings(opts.AllowFilteringKeybindings)
+	gui.State.Contexts.Menu.SetKeybindingsTakePrecedence(!opts.KeepConflictingKeybindings)
 	gui.State.Contexts.Menu.SetSelection(0)
+
+	gui.Views.Menu.SetOriginY(0)
 
 	gui.Views.Menu.Title = opts.Title
 	gui.Views.Menu.FgColor = theme.GocuiDefaultTextColor
